@@ -1,0 +1,15 @@
+[package]
+name = "news-summarizer-openai"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+async-openai = "0.20.0"
+dotenvy = "0.15.7"
+openssl-sys = "0.9.102"
+reqwest = "0.12.3"
+rocket = "0.5.0"
+serde = "1.0.198"
+tiktoken-rs = "0.5.8"
