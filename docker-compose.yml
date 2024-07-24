@@ -1,0 +1,27 @@
+version: "3.7"
+
+services:
+  db:
+    image: postgres:14.5
+    restart: always
+    ports:
+      - "5432:5432" # Expose port 5432 on your host machine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  news-summarizer: # Name of your service (adjust as needed)
+    build: . # Build context is the current directory (where your Dockerfile is)
+    ports:
+      - 8000:8000 # Example port mapping, adjust if needed
+    # Add any other service-specific configurations here (environment variables, volumes, etc.)
+
+volumes:
+  postgres_data:
+
+x-secret-manager:
+  - name: POSTGRES_USER
+    secret: projects/${PROJECT_ID}/secrets/POSTGRES_USER/versions/LATEST
+  - name: POSTGRES_PASSWORD
+    secret: projects/${PROJECT_ID}/secrets/POSTGRES_PASSWORD/versions/LATEST
+  - name: POSTGRES_DB
+    secret: projects/${PROJECT_ID}/secrets/POSTGRES_DB/versions/LATEST
