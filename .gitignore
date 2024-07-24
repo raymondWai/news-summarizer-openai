@@ -4,5 +4,6 @@
 client_secret*
 .terraform
 .terraform.lock.hcl
+terraform.tfstate*
 *.tfvars
 datasets
