@@ -1,4 +1,15 @@
 {
-    "IDX.aI.enableInlineCompletion": true,
-    "IDX.aI.enableCodebaseIndexing": true
+  "IDX.aI.enableInlineCompletion": true,
+  "IDX.aI.enableCodebaseIndexing": true,
+  "sqltools.connections": [
+    {
+      "previewLimit": 50,
+      "server": "localhost",
+      "port": 5432,
+      "driver": "PostgreSQL",
+      "name": "local-news-summarizer",
+      "database": "dev_news_summarizer_dev",
+      "username": "dev_news_summarizer_j8qt8EeN"
+    }
+  ]
 }

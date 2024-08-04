@@ -1,11 +1,16 @@
+mod auth;
+mod db_utils;
 mod external_services;
-pub mod handlers;
-pub mod models;
-pub mod schema;
+mod handlers;
+mod models;
+mod schema;
 mod utils;
 
 use dotenvy::dotenv;
-use handlers::{get_news, summarize_single_text};
+use handlers::{
+    generate_daily_summary, summarize_date, summarize_nytimes, update_news_lib_handler,
+};
+
 #[macro_use]
 extern crate rocket;
 
@@ -17,5 +22,14 @@ fn index() -> &'static str {
 #[launch]
 fn rocket() -> _ {
     let _ = dotenv();
-    rocket::build().mount("/", routes![index, summarize_single_text, get_news])
+    rocket::build().mount(
+        "/",
+        routes![
+            index,
+            summarize_nytimes,
+            update_news_lib_handler,
+            summarize_date,
+            generate_daily_summary
+        ],
+    )
 }
