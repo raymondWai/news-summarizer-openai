@@ -31,9 +31,18 @@ diesel::table! {
     }
 }
 
+diesel::table! {
+    summary (id) {
+        id -> Int4,
+        date -> Timestamp,
+        content -> Text,
+    }
+}
+
 diesel::joinable!(article -> source (source_id));
 
 diesel::allow_tables_to_appear_in_same_query!(
     article,
     source,
+    summary,
 );
