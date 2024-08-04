@@ -23,5 +23,7 @@ x-secret-manager:
     secret: projects/${PROJECT_ID}/secrets/POSTGRES_USER/versions/LATEST
   - name: POSTGRES_PASSWORD
     secret: projects/${PROJECT_ID}/secrets/POSTGRES_PASSWORD/versions/LATEST
+  - name: POSTGRES_HOST
+    secret: projects/${PROJECT_ID}/secrets/POSTGRES_HOST/versions/LATEST
   - name: POSTGRES_DB
     secret: projects/${PROJECT_ID}/secrets/POSTGRES_DB/versions/LATEST
