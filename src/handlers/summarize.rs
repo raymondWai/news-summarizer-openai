@@ -1,8 +1,8 @@
-use chrono::{DateTime, FixedOffset, TimeZone, Utc};
+use chrono::{Datelike, NaiveDate, Utc};
 use diesel::{QueryDsl, RunQueryDsl};
 
 use crate::db_utils::{
-    establish_connection, get_article_by_region, get_summary_by_date, insert_summary,
+    establish_connection, get_article_by_region_date, get_summary_by_date, insert_summary,
 };
 use crate::external_services;
 use crate::schema::source;
@@ -61,36 +61,35 @@ pub async fn summarize_nytimes() -> String {
 pub async fn summarize_date(date: Option<&str>) -> String {
     let now = Utc::now().naive_utc();
     let date = match date {
-        Some(s) => DateTime::parse_from_str(s, "%Y-%m-%d%z")
-            .unwrap_or_else(|_| {
-                // Handle parsing error, e.g., use a default FixedOffset
-                DateTime::from_naive_utc_and_offset(now.clone(), FixedOffset::east_opt(0).unwrap())
-                // Example: UTC+00:00
-            })
-            .to_utc()
-            .naive_utc(),
-        None => DateTime::<FixedOffset>::from_naive_utc_and_offset(
-            now.clone(),
-            FixedOffset::east_opt(0).unwrap(),
-        )
-        .to_utc()
-        .naive_utc(), // Example: UTC+00:00
+        Some(s) => NaiveDate::parse_from_str(s, "%Y-%m-%d").unwrap_or_else(|_| {
+            // Handle parsing error, e.g., use a default FixedOffset
+            NaiveDate::from_ymd_opt(now.year(), now.month(), now.day()).unwrap()
+            // Example: UTC+00:00
+        }),
+        None => NaiveDate::from_ymd_opt(now.year(), now.month(), now.day()).unwrap(), // Example: UTC+00:00
     };
     get_summary_by_date(&date, &mut establish_connection())
 }
 
 #[post("/generate-daily-summary")]
 pub async fn generate_daily_summary() -> String {
+    let now: chrono::NaiveDateTime = Utc::now().naive_utc();
     let mut conn = establish_connection();
     let sources: Vec<String> = source::table
         .select(source::country)
         .distinct()
         .load::<String>(&mut conn)
         .unwrap();
-    let articles = get_article_by_region(&sources, &mut conn);
+    let articles = get_article_by_region_date(
+        &sources,
+        &(NaiveDate::from_ymd_opt(now.year(), now.month(), 5).unwrap()),
+        &mut conn,
+    );
     if let Ok(cahced_articles) = articles {
         // Initialize prompt for summarization
-        let mut prompt = String::from("Rewrite following articles in summarized form.\nProvided that --- is separator between articles.");
+        let mut prompt = String::from(
+            "Summarize following articles in 200 words or less.\nProvided that --- is separator between articles.---\n",
+        );
         // Iterate over articles, appending abstracts to prompt
         for article in cahced_articles.iter() {
             write!(
@@ -107,7 +106,6 @@ pub async fn generate_daily_summary() -> String {
                     .join(", ")
             )
             .unwrap();
-            println!("{}: {}", &article.title, &article.description);
         }
         println!("prompt: {}", &prompt);
 

@@ -1,16 +1,13 @@
-use chrono::{Datelike, NaiveDateTime, Timelike};
+use chrono::NaiveDate;
 use diesel::{insert_into, ExpressionMethods, PgConnection, QueryDsl, RunQueryDsl};
-use rocket::tokio;
 
-use crate::db_utils::establish_connection;
-use crate::handlers::update_news_lib;
-use crate::{generate_daily_summary, models::NewSummary, schema::summary};
+use crate::{models::NewSummary, schema::summary};
 
 pub fn insert_summary(new_summary: &String, conn: &mut PgConnection) -> usize {
     insert_into(summary::table)
         .values(&NewSummary {
             content: new_summary.clone(),
-            date: chrono::Utc::now().naive_utc(),
+            date: chrono::Utc::now().naive_utc().date(),
         })
         .on_conflict(summary::date)
         .do_update()
@@ -19,30 +16,10 @@ pub fn insert_summary(new_summary: &String, conn: &mut PgConnection) -> usize {
         .unwrap()
 }
 
-pub fn get_summary_by_date(date: &NaiveDateTime, conn: &mut PgConnection) -> String {
+pub fn get_summary_by_date(date: &NaiveDate, conn: &mut PgConnection) -> String {
     use crate::schema::summary::content;
-    let mut summary = String::from("");
     summary::table
-        .filter(
-            summary::date.ge(date
-                .with_hour(0)
-                .unwrap()
-                .with_minute(0)
-                .unwrap()
-                .with_second(0)
-                .unwrap()),
-        )
-        .filter(
-            summary::date.le(date
-                .with_day(date.day() + 1)
-                .unwrap()
-                .with_hour(0)
-                .unwrap()
-                .with_minute(0)
-                .unwrap()
-                .with_second(0)
-                .unwrap()),
-        )
+        .filter(summary::date.eq(date))
         .select(content)
         .load::<String>(conn)
         .unwrap()

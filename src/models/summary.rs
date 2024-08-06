@@ -1,4 +1,4 @@
-use chrono::NaiveDateTime;
+use chrono::NaiveDate;
 use diesel::prelude::*;
 
 #[derive(Queryable, Selectable, Identifiable, Debug, PartialEq)]
@@ -7,7 +7,7 @@ use diesel::prelude::*;
 pub struct Summary {
     pub id: i32,
     pub content: String,
-    pub date: NaiveDateTime,
+    pub date: NaiveDate,
 }
 
 #[derive(Insertable)]
@@ -15,5 +15,5 @@ pub struct Summary {
 #[diesel(check_for_backend(diesel::pg::Pg))]
 pub struct NewSummary {
     pub content: String,
-    pub date: NaiveDateTime,
+    pub date: NaiveDate,
 }
