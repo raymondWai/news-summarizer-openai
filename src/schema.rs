@@ -34,7 +34,7 @@ diesel::table! {
 diesel::table! {
     summary (id) {
         id -> Int4,
-        date -> Timestamp,
+        date -> Date,
         content -> Text,
     }
 }
